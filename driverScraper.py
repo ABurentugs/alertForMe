@@ -1,63 +1,67 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+
 import time
-import requests
-from bs4 import BeautifulSoup
-from plyer import notification
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+
 
 # Settings
-URL = "https://www.keishicho-gto.metro.tokyo.lg.jp/keishicho-u/reserve/offerList_detail?tempSeq=363&accessFrom=offerList"  # <-- Replace with your target website
-CHECK_INTERVAL = 60  # seconds
-TABLE_ID = "target-table-id"  # <-- Set this if the table has an id. Otherwise, we can search by index.
-COLUMN_INDEX = 1  # <-- 0-based index: first column is 0, second is 1, etc.
+DRIVER_PATH = 'C:/Users/ariun/Desktop/chromedriver-win64/chromedriver-win64/chromedriver.exe'
+TOKYO_URL = "https://www.keishicho-gto.metro.tokyo.lg.jp/keishicho-u/reserve/offerList_detail?tempSeq=363&accessFrom=offerList"  
+KANAGAWA_URL = "https://dshinsei.e-kanagawa.lg.jp/140007-u/reserve/offerList_detail?tempSeq=50909&accessFrom=offerList"
+check_interval = 50  # seconds
+TABLE_ID = "TBL"
 
-def get_target_column(url, table_id=None, column_index=0):
-    response = requests.get(url)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    # Find the table
-    if table_id:
-        table = soup.find("table", id=table_id)
-    else:
-        table = soup.find("table")  # first table found
-
-    if table is None:
-        raise ValueError("No table found on the page.")
-
-    # Extract all rows
-    rows = table.find_all("tr")
-
-    # Extract the target column data
-    column_data = []
-    for row in rows:
-        cells = row.find_all(["td", "th"])
-        if len(cells) > column_index:
-            column_data.append(cells[column_index].get_text(strip=True))
-    
-    return column_data
-
-def notify_user(title, message):
-    notification.notify(
-        title=title,
-        message=message,
-        timeout=5
-    )
+service = Service(executable_path = DRIVER_PATH)
+driver = webdriver.Chrome(service=service)
 
 def main():
-    print(f"Monitoring {URL} - Column {COLUMN_INDEX} of table {TABLE_ID or '(first table)'}...")
-    previous_column_data = get_target_column(URL, TABLE_ID, COLUMN_INDEX)
+    global driver, KANAGAWA_URL, check_interval
 
-    while True:
-        time.sleep(CHECK_INTERVAL)
-        try:
-            current_column_data = get_target_column(URL, TABLE_ID, COLUMN_INDEX)
-            if current_column_data != previous_column_data:
-                print("Update detected in the target column!")
-                notify_user("Column Update Detected", f"Changes detected at {URL}")
-                previous_column_data = current_column_data
-            else:
-                print("No changes detected.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
+    try:
+        # change_date_button = date_parent_element.find_element(By.XPATH, '//input[@value="2週後>"]')
+        # latest_week_element = driver.find_element(By.XPATH, '//')
+        date_parent_element = None
+        change_date_button = None
+
+        while True:
+        # get website
+
+            driver.get(KANAGAWA_URL)
+            driver.implicitly_wait(15)
+        # click on button until latest date on table.
+            date_parent_element = driver.find_element(By.CLASS_NAME, 'calender_pager_right')
+
+            while True:
+                try:
+                    # date_parent_element = driver.find_element(By.CLASS_NAME, 'calender_pager_right')
+                    change_date_button = driver.find_element(By.XPATH, '//input[@value="2週後＞"]')
+                    if not change_date_button.is_enabled():
+                        break
+                    driver.execute_script("arguments[0].scrollIntoView(true);", change_date_button)
+                    time.sleep(1)
+                    change_date_button.click()
+                    logger.info(f"CLICKED BUTTON\n\n\n\n\n\n")
+                    # time.sleep(5)
+                except:
+                    break
+
+        
+        # search for latest available dates. Get latest availabel datess
+
+        # send available dates via email to me if any new.s
+
+
+
+            time.sleep(check_interval)
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
+    logger.info(f"started main")
     main()
+    logger.info(f"ended main")
+
