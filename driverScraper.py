@@ -23,7 +23,7 @@ EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
 
 
 # URL settings
-DRIVER_PATH = 'C:/Users/ariun/Desktop/chromedriver-win64/chromedriver-win64/chromedriver.exe'
+DRIVER_PATH = ''
 TOKYO_URL = "https://www.keishicho-gto.metro.tokyo.lg.jp/keishicho-u/reserve/offerList_detail?tempSeq=363&accessFrom=offerList"  
 KANAGAWA_URL = "https://dshinsei.e-kanagawa.lg.jp/140007-u/reserve/offerList_detail?tempSeq=50909&accessFrom=offerList"
 check_interval = 50  # seconds
