@@ -27,13 +27,13 @@ EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
 DRIVER_PATH = '/snap/bin/geckodriver'
 TOKYO_URL = "https://www.keishicho-gto.metro.tokyo.lg.jp/keishicho-u/reserve/offerList_detail?tempSeq=363&accessFrom=offerList"  
 KANAGAWA_URL = "https://dshinsei.e-kanagawa.lg.jp/140007-u/reserve/offerList_detail?tempSeq=50909&accessFrom=offerList"
-check_interval = 360  # seconds
+check_interval = 50# seconds
 TABLE_ID = "TBL"
 LAST_DATES_FILE = "./last_dates.txt"
 
 service = Service(executable_path = DRIVER_PATH)
 options = Options()
-#options.headless = True
+options.headless = True
 driver = webdriver.Firefox(service=service, options=options)
 
 def send_email_with_attachment(subject, body, attachment_path):
